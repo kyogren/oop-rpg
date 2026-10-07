@@ -6,10 +6,18 @@ const changeStyle: Record<Change, { row: string; label: string; badge: string }>
   changed: { row: 'border-changed bg-changed/10', label: 'sửa', badge: 'bg-changed/15 text-changed' },
 }
 
-function MemberRow({ m }: { m: Member }) {
+// Khi nằm trong <Reveal>: ẩn tới lúc cuộn tới rồi hiện lần lượt từng dòng
+function MemberRow({ m, index }: { m: Member; index: number }) {
   const c = m.change ? changeStyle[m.change] : null
   return (
-    <li className={cn('flex items-start gap-2 border-l-2 border-transparent px-3 py-1.5', c?.row)}>
+    <li
+      className={cn(
+        'flex items-start gap-2 border-l-2 border-transparent px-3 py-1.5',
+        'in-data-[shown=false]:opacity-0 in-data-[shown=true]:animate-row-in',
+        c?.row,
+      )}
+      style={{ animationDelay: `${250 + index * 55}ms` }}
+    >
       <span
         className={cn('w-3 shrink-0 text-center font-bold', m.vis === '+' ? 'text-added' : 'text-destructive')}
         title={m.vis === '+' ? 'public' : m.vis === '-' ? 'private' : 'protected'}
@@ -36,13 +44,13 @@ export function ClassBox({ spec }: { spec: ClassSpec }) {
     >
       <div className="bg-primary px-3 py-2 text-center font-bold text-primary-foreground">{spec.name}</div>
       <ul className="divide-y divide-transparent py-1.5">
-        {spec.attributes.map((m) => (
-          <MemberRow key={m.text} m={m} />
+        {spec.attributes.map((m, i) => (
+          <MemberRow key={m.text} m={m} index={i} />
         ))}
       </ul>
       <ul className="border-t border-dashed border-foreground/20 py-1.5">
-        {spec.methods.map((m) => (
-          <MemberRow key={m.text} m={m} />
+        {spec.methods.map((m, i) => (
+          <MemberRow key={m.text} m={m} index={spec.attributes.length + i} />
         ))}
       </ul>
     </div>

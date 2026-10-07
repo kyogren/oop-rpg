@@ -40,6 +40,47 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+
+    /* Animation của game */
+    --animate-shake: shake 0.42s ease-in-out;
+    --animate-float-up: float-up 0.95s ease-out forwards;
+    --animate-pop-in: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    --animate-path-draw: path-draw 1.6s ease-out both;
+    --animate-grow-x: grow-x 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+    --animate-row-in: row-in 0.4s ease-out both;
+    --animate-bob: bob 1.6s ease-in-out infinite;
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-7px); }
+        40% { transform: translateX(7px); }
+        60% { transform: translateX(-4px); }
+        80% { transform: translateX(4px); }
+    }
+    @keyframes float-up {
+        0% { opacity: 0; transform: translate(-50%, 6px) scale(0.7); }
+        15% { opacity: 1; transform: translate(-50%, 0) scale(1.15); }
+        100% { opacity: 0; transform: translate(-50%, -46px) scale(1); }
+    }
+    @keyframes pop-in {
+        0% { opacity: 0; transform: scale(0.3); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes path-draw {
+        from { transform: scaleY(0); }
+        to { transform: scaleY(1); }
+    }
+    @keyframes grow-x {
+        from { width: 0; }
+    }
+    @keyframes row-in {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: none; }
+    }
+    @keyframes bob {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
 }
 
 /* Sáng: trang sổ tay phiêu lưu (giấy da, mực nâu, chàm hoàng gia) */
@@ -111,5 +152,16 @@
   }
   code {
     font-variant-ligatures: none;
+  }
+}
+
+/* Người dùng bật "giảm chuyển động" trong hệ điều hành: tắt mọi animation */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
 }

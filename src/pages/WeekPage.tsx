@@ -20,6 +20,7 @@ import { ClassBox, DiagramLegend } from '@/components/ClassDiagram'
 import { CodeBlock } from '@/components/CodeBlock'
 import { Markdown } from '@/components/Markdown'
 import { RegionIcon } from '@/components/RegionIcon'
+import { Reveal } from '@/components/Reveal'
 import { cn } from '@/lib/utils'
 import { findWeek, weeks } from '@/content/weeks'
 import { getCode, getWeekMarkdown } from '@/content/loaders'
@@ -28,15 +29,17 @@ import { NotFoundPage } from './NotFoundPage'
 
 function Section({ id, icon, title, children }: { id: string; icon: ReactNode; title: string; children: ReactNode }) {
   return (
-    <section id={id} className="scroll-mt-20">
-      <h2 className="mb-4 flex items-center gap-2.5 text-xl font-bold">
-        <span className="grid size-8 place-items-center rounded-lg bg-accent text-accent-foreground [&_svg]:size-4.5">
-          {icon}
-        </span>
-        {title}
-      </h2>
-      {children}
-    </section>
+    <Reveal>
+      <section id={id} className="scroll-mt-20">
+        <h2 className="mb-4 flex items-center gap-2.5 text-xl font-bold">
+          <span className="grid size-8 place-items-center rounded-lg bg-accent text-accent-foreground [&_svg]:size-4.5">
+            {icon}
+          </span>
+          {title}
+        </h2>
+        {children}
+      </section>
+    </Reveal>
   )
 }
 
@@ -84,11 +87,11 @@ function CodeSection({ w }: { w: Week }) {
               </TabsTrigger>
             ))}
           </TabsList>
-          <TabsContent value="starter" className="mt-2">
+          <TabsContent value="starter" className="mt-2 animate-in fade-in-0 slide-in-from-bottom-1 duration-300">
             {w.starterCode && <CodeFile path={w.starterCode} />}
             <p className="mt-2 text-sm text-muted-foreground">Đây chính là lời giải của tuần trước, điểm xuất phát chung cho cả lớp.</p>
           </TabsContent>
-          <TabsContent value="solution" className="mt-2">
+          <TabsContent value="solution" className="mt-2 animate-in fade-in-0 slide-in-from-bottom-1 duration-300">
             {solution}
           </TabsContent>
         </Tabs>
@@ -106,7 +109,9 @@ function ExerciseSection({ w }: { w: Week }) {
           const inner = (
             <>
               <div className="flex items-start gap-2">
-                {e.boss && <Skull className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />}
+                {e.boss && (
+                  <Skull className="mt-0.5 size-4 shrink-0 text-destructive transition-transform group-hover/boss:animate-shake" aria-hidden />
+                )}
                 <h3 className="font-semibold">{e.title}</h3>
                 {e.url && <ExternalLink className="mt-1 ml-auto size-3.5 shrink-0 text-muted-foreground" aria-hidden />}
               </div>
@@ -116,12 +121,12 @@ function ExerciseSection({ w }: { w: Week }) {
           )
           const cls = cn(
             'block h-full rounded-xl bg-card p-4 ring-1 ring-foreground/10',
-            e.boss && 'bg-destructive/5 ring-destructive/30 sm:col-span-2',
+            e.boss && 'group/boss bg-destructive/5 ring-destructive/30 sm:col-span-2',
           )
           return (
             <li key={e.title}>
               {e.url ? (
-                <a href={e.url} target="_blank" rel="noreferrer" className={cn(cls, 'transition hover:ring-primary/40 hover:shadow-md')}>
+                <a href={e.url} target="_blank" rel="noreferrer" className={cn(cls, 'transition hover:-translate-y-0.5 hover:shadow-md hover:ring-primary/40')}>
                   {inner}
                 </a>
               ) : (

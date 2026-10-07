@@ -41,7 +41,8 @@ export function Layout() {
         </div>
       </header>
 
-      <main className="flex-1">
+      {/* key theo đường dẫn: mỗi lần chuyển trang, nội dung mờ dần hiện lên */}
+      <main key={pathname} className="flex-1 animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
         <Outlet />
       </main>
 

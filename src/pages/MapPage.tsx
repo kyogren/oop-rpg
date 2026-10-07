@@ -2,7 +2,10 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Check, Lock, MapPin, Sparkles } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { RegionIcon } from '@/components/RegionIcon'
+import { BattleDemo } from '@/components/BattleDemo'
+import { Reveal } from '@/components/Reveal'
 import { cn } from '@/lib/utils'
+import { useInView } from '@/lib/motion'
 import { site } from '@/content/site'
 import { currentSlug, weeks } from '@/content/weeks'
 import type { Week } from '@/content/types'
@@ -75,62 +78,88 @@ function RegionCard({ w, status }: { w: Week; status: Status }) {
   )
 }
 
+function Stop({ w, index }: { w: Week; index: number }) {
+  const status = statusOf(w)
+  const left = index % 2 === 0
+  const [ref, shown] = useInView<HTMLLIElement>()
+  return (
+    <li ref={ref} className="relative pb-8 pl-18 last:pb-0 md:grid md:grid-cols-2 md:pl-0">
+      <div className={cn('absolute top-2 left-0 md:left-1/2 md:-translate-x-1/2', shown ? 'animate-pop-in' : 'opacity-0')}>
+        <Node w={w} status={status} />
+      </div>
+      <div className={cn(left ? 'md:col-start-1 md:pr-12' : 'md:col-start-2 md:pl-12')}>
+        <Reveal from={left ? 'left' : 'right'} delay={120}>
+          <RegionCard w={w} status={status} />
+        </Reveal>
+      </div>
+    </li>
+  )
+}
+
 export function MapPage() {
   const unlocked = weeks.filter((w) => w.unlocked).length
   const current = weeks.find((w) => w.slug === currentSlug)
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-16">
-      <section className="py-12 text-center sm:py-16">
-        <p className="text-sm font-semibold tracking-wide text-primary uppercase">{site.course}</p>
-        <h1 className="mt-3 text-4xl font-extrabold tracking-tight text-balance sm:text-5xl">{site.title}</h1>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-pretty text-muted-foreground">{site.subtitle}</p>
+      <section className="grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1fr_minmax(0,26rem)]">
+        <div className="text-center lg:text-left">
+          <p className="animate-in fade-in-0 slide-in-from-bottom-3 text-sm font-semibold tracking-wide text-primary uppercase duration-700">
+            {site.course}
+          </p>
+          <h1 className="mt-3 animate-in fade-in-0 slide-in-from-bottom-3 text-4xl font-extrabold tracking-tight text-balance duration-700 fill-mode-both delay-100 sm:text-5xl">
+            {site.title}
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl animate-in fade-in-0 slide-in-from-bottom-3 text-lg text-pretty text-muted-foreground duration-700 fill-mode-both delay-200 lg:mx-0">
+            {site.subtitle}
+          </p>
 
-        <div className="mx-auto mt-8 max-w-sm">
-          <div className="flex justify-between text-sm font-medium">
-            <span>Tiến độ hành trình</span>
-            <span className="text-muted-foreground">
-              {unlocked}/{weeks.length} vùng đất
-            </span>
+          <div className="mx-auto mt-8 max-w-sm animate-in fade-in-0 duration-700 fill-mode-both delay-300 lg:mx-0">
+            <div className="flex justify-between text-sm font-medium">
+              <span>Tiến độ hành trình</span>
+              <span className="text-muted-foreground">
+                {unlocked}/{weeks.length} vùng đất
+              </span>
+            </div>
+            <div
+              className="mt-2 h-2.5 overflow-hidden rounded-full bg-muted"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={weeks.length}
+              aria-valuenow={unlocked}
+            >
+              <div
+                className="h-full animate-grow-x rounded-full bg-gradient-to-r from-primary to-gold"
+                style={{ width: `${(unlocked / weeks.length) * 100}%` }}
+              />
+            </div>
           </div>
-          <div
-            className="mt-2 h-2.5 overflow-hidden rounded-full bg-muted"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={weeks.length}
-            aria-valuenow={unlocked}
-          >
-            <div className="h-full rounded-full bg-gradient-to-r from-primary to-gold" style={{ width: `${(unlocked / weeks.length) * 100}%` }} />
-          </div>
+
+          {current && (
+            <Link
+              to={`/tuan/${current.slug}`}
+              className={cn(
+                buttonVariants({ size: 'lg' }),
+                'group mt-8 h-11 animate-in fade-in-0 zoom-in-95 px-5 text-base duration-500 fill-mode-both delay-500',
+              )}
+            >
+              <Sparkles className="transition-transform group-hover:rotate-12 group-hover:scale-110" aria-hidden /> Tiếp tục: {current.region}
+            </Link>
+          )}
         </div>
 
-        {current && (
-          <Link to={`/tuan/${current.slug}`} className={cn(buttonVariants({ size: 'lg' }), 'mt-8 h-11 px-5 text-base')}>
-            <Sparkles aria-hidden /> Tiếp tục: {current.region}
-          </Link>
-        )}
+        <BattleDemo className="mx-auto w-full max-w-md animate-in fade-in-0 slide-in-from-bottom-6 duration-1000 fill-mode-both delay-200" />
       </section>
 
-      {/* Con đường hành trình: dải đứt nét ở giữa (máy tính) hoặc bên trái (điện thoại) */}
-      <ol className="relative">
+      {/* Con đường hành trình: dải đứt nét ở giữa (máy tính) hoặc bên trái (điện thoại), tự vẽ từ trên xuống */}
+      <ol className="relative mt-4">
         <div
-          className="absolute top-6 bottom-6 left-6 border-l-2 border-dashed border-foreground/20 md:left-1/2 md:-translate-x-px"
+          className="absolute top-6 bottom-6 left-6 origin-top animate-path-draw border-l-2 border-dashed border-foreground/20 md:left-1/2 md:-translate-x-px"
           aria-hidden
         />
-        {weeks.map((w, i) => {
-          const status = statusOf(w)
-          const left = i % 2 === 0
-          return (
-            <li key={w.slug} className="relative pb-8 pl-18 last:pb-0 md:grid md:grid-cols-2 md:pl-0">
-              <div className="absolute top-2 left-0 md:left-1/2 md:-translate-x-1/2">
-                <Node w={w} status={status} />
-              </div>
-              <div className={cn(left ? 'md:col-start-1 md:pr-12' : 'md:col-start-2 md:pl-12')}>
-                <RegionCard w={w} status={status} />
-              </div>
-            </li>
-          )
-        })}
+        {weeks.map((w, i) => (
+          <Stop key={w.slug} w={w} index={i} />
+        ))}
       </ol>
     </div>
   )
